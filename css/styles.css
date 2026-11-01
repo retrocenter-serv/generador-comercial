@@ -266,3 +266,6 @@ body{background:var(--app-bg);color:#1e293b;font-family:var(--interface-font,Ari
  .shell,.stage,.paperWrap{display:block!important;margin:0!important;padding:0!important;width:210mm!important;min-height:0!important;background:white!important;overflow:visible!important}
  .paper{zoom:1!important;transform:none!important;box-shadow:none!important;border:none!important;margin:0!important;width:210mm!important;min-height:297mm!important;padding:11mm 15mm 9mm!important}
 }
+
+.navMark svg{width:21px;height:21px}.navIcon svg{width:18px;height:18px;flex:none}
+@media(max-width:820px){.navIcon svg{width:16px;height:16px}}
