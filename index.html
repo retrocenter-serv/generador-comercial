@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Generador de Cotizaciones y Notas de Venta · v1.3.0</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="shell" id="app">
+ <aside class="control">
+  <header class="controlHead">
+   <div class="eyebrow">GENERADOR COMERCIAL</div>
+   <h1>Cotizaciones y notas de venta</h1>
+   <p>Completa los datos, revisa el documento y guárdalo en PDF.</p>
+   <div class="controlAction">
+    <button type="button" class="btn primary" id="printTop">Guardar PDF</button>
+    <button type="button" class="btn" id="newDoc">Nuevo</button>
+   </div>
+  </header>
+  <nav class="btnbar" aria-label="Pasos de edición">
+   <button type="button" class="tab active" data-tab="documento"><span class="stepNum">01</span><span>Datos</span></button>
+   <button type="button" class="tab" data-tab="conceptos"><span class="stepNum">02</span><span>Conceptos</span></button>
+   <button type="button" class="tab" data-tab="opciones"><span class="stepNum">03</span><span>Opciones</span></button>
+  </nav>
+  <section class="formPanel active" data-panel="documento" aria-label="Datos del documento">
+   <div class="panelHeading"><h2>Información principal</h2><p>Lo necesario para comenzar.</p></div>
+   <div class="fieldLabel">Tipo de documento</div>
+   <div class="typeToggle"><button type="button" class="typeButton active" data-type="cotizacion">Cotización</button><button type="button" class="typeButton" data-type="nota">Nota de venta</button></div>
+   <div class="fields2"><div class="field"><label for="documentNo">Número</label><input id="documentNo" data-bind="documentNo" placeholder="Ej. 03.2026"></div><div class="field"><label for="issued">Fecha</label><input id="issued" type="date" data-bind="issueDate"></div></div>
+   <div class="softDivider"></div>
+   <div class="panelHeading nested"><h2>Cliente</h2></div>
+   <div class="field"><label for="customerName">Nombre o razón social</label><input id="customerName" data-bind="client.name" placeholder="Nombre del cliente"></div>
+   <div class="fields2"><div class="field"><label for="customerDoc">DNI / RUC</label><input id="customerDoc" data-bind="client.document" placeholder="Opcional"></div><div class="field"><label for="customerPhone">Teléfono</label><input id="customerPhone" data-bind="client.phone" placeholder="Opcional"></div></div>
+   <details class="accordion compactAccordion"><summary>Más datos del cliente</summary><div class="accordionBody"><div class="field"><label>Correo electrónico</label><input data-bind="client.email" type="email" placeholder="Opcional"></div><div class="field"><label>Dirección</label><textarea data-bind="client.address" rows="2" placeholder="Opcional"></textarea></div></div></details>
+   <details class="accordion" id="docDetailGroup"><summary><span>Detalles del documento</span><span class="summaryHint">Opcional</span></summary><div class="accordionBody">
+    <div class="field" id="validityField"><label for="validUntil">Válida hasta</label><input id="validUntil" type="date" data-bind="validUntil"></div>
+    <div class="field"><label for="subject">Asunto o servicio</label><input id="subject" data-bind="subject" placeholder="Ej. Mantenimiento y diagnóstico"></div>
+    <label class="switchLine">Mostrar asunto en el PDF <input type="checkbox" data-bind="showSubject"></label>
+    <div class="field"><label for="introduction">Texto de presentación</label><textarea id="introduction" data-bind="introduction" rows="3"></textarea></div>
+   </div></details>
+   <div class="nextStep"><button class="btn primary nextButton" type="button" data-go="conceptos">Continuar a conceptos</button></div>
+  </section>
+  <section class="formPanel" data-panel="conceptos" aria-label="Conceptos e importes">
+   <div class="panelHeading"><h2>Productos y servicios</h2><p>Agrega lo que deseas cotizar o vender.</p></div>
+   <div id="itemsEditor"></div>
+   <button class="btn addButton" type="button" id="addItem">Agregar concepto</button>
+   <div class="editorTotal" aria-live="polite"><span>Importe total</span><strong id="editorTotalPrice">S/ 0.00</strong></div>
+   <details class="accordion"><summary><span>Descuentos e impuestos</span><span class="summaryHint">Opcional</span></summary><div class="accordionBody">
+    <div class="field"><label>Moneda</label><select data-bind="currency"><option value="PEN">Soles (S/)</option><option value="USD">Dólares (US$)</option></select></div>
+    <div class="fields2"><div class="field"><label>Descuento (%)</label><input type="number" min="0" max="100" step="0.01" data-bind="discountPercent"></div><div class="field"><label>IGV</label><select data-bind="taxMode"><option value="none">Sin desglose</option><option value="add">Agregar 18%</option><option value="included">Incluido 18%</option></select></div></div>
+    <p class="hint">Elige el tratamiento de IGV que corresponda a tu operación.</p>
+   </div></details>
+   <details class="accordion"><summary><span>Servicios opcionales</span><span class="summaryHint">No se suman al total</span></summary><div class="accordionBody">
+    <div id="optionalEditor"></div><button type="button" class="btn addButton" id="addOptional">Agregar servicio opcional</button>
+   </div></details>
+   <div class="nextStep"><button class="btn primary nextButton" type="button" data-go="opciones">Continuar a opciones</button></div>
+  </section>
+  <section class="formPanel" data-panel="opciones" aria-label="Opciones adicionales">
+   <div class="panelHeading"><h2>Opciones del documento</h2><p>Personaliza solo lo que necesites.</p></div>
+   <details class="accordion"><summary>Condiciones comerciales</summary><div class="accordionBody">
+    <div class="field"><label>Forma de pago</label><textarea data-bind="paymentTerms" rows="3"></textarea></div>
+    <div class="fields2"><div class="field"><label>Adelanto (%)</label><input type="number" min="0" max="100" step="1" data-bind="advancePercent"></div><div class="field" style="padding-top:17px"><label class="switchLine" style="margin:0">Mostrar adelanto <input type="checkbox" data-bind="showAdvance"></label></div></div>
+    <div class="field"><label>Recomendaciones (una por línea)</label><textarea data-bind="recommendations" rows="4"></textarea></div>
+    <div class="field"><label>Observaciones</label><textarea data-bind="important" rows="3"></textarea></div>
+    <label class="switchLine">Mostrar recomendaciones <input type="checkbox" data-bind="showRecommendations"></label>
+    <label class="switchLine">Mostrar observaciones <input type="checkbox" data-bind="showImportant"></label>
+   </div></details>
+   <details class="accordion"><summary>Medios de pago</summary><div class="accordionBody">
+    <label class="switchLine">Mostrar en el documento <input type="checkbox" data-bind="showPayments"></label>
+    <div id="paymentsEditor"></div><button type="button" class="btn addButton" id="addPayment">Agregar medio de pago</button>
+   </div></details>
+   <details class="accordion" id="logoSettings"><summary><span>Logotipo</span><span class="summaryHint">Opcional</span></summary><div class="accordionBody">
+    <div class="logoManage">
+     <div class="fieldLabel">Imagen de la empresa</div>
+     <div class="logoManageRow">
+      <div class="logoPreview" id="logoControlPreview" aria-live="polite"><span class="logoEmpty">Sin logo</span></div>
+      <div>
+       <div class="logoManageActions"><input id="logoUpload" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" aria-label="Adjuntar logotipo"><label for="logoUpload" class="btn small" role="button" tabindex="0" id="logoSelectButton">Adjuntar logo</label><button class="btn small" id="removeLogo" type="button">Quitar logo</button></div>
+       <p class="hint">PNG, JPG, WebP o SVG (máx. 3 MB).</p>
+      </div>
+     </div>
+    </div>
+    <p class="hint">Si no adjuntas un logo, el encabezado mostrará solo el nombre de la empresa. No se generan iniciales.</p>
+   </div></details>
+   <details class="accordion"><summary>Datos de la empresa</summary><div class="accordionBody">
+    <div class="field"><label>Nombre comercial o razón social</label><input data-bind="company.name"></div>
+    <div class="field"><label>Descripción comercial</label><input data-bind="company.tagline"></div>
+    <div class="fields2"><div class="field"><label>RUC</label><input data-bind="company.ruc" placeholder="Opcional"></div><div class="field"><label>Teléfono</label><input data-bind="company.phone"></div></div>
+    <div class="field"><label>Correo electrónico</label><input data-bind="company.email" type="email"></div>
+    <div class="field"><label>Dirección</label><textarea data-bind="company.address" rows="2"></textarea></div>
+    <label class="switchLine">Mostrar datos al pie <input type="checkbox" data-bind="showFooter"></label>
+   </div></details>
+   <details class="accordion" id="fontSettings"><summary><span>Tipografía</span><span class="summaryHint">12 fuentes</span></summary><div class="accordionBody">
+    <div class="field"><label for="documentFont">Fuente del documento</label>
+     <select id="documentFont" data-bind="theme.fontFamily">
+      <option value="Arial">Arial</option>
+      <option value="Aptos">Aptos</option>
+      <option value="Calibri">Calibri</option>
+      <option value="Segoe UI">Segoe UI</option>
+      <option value="Tahoma">Tahoma</option>
+      <option value="Verdana">Verdana</option>
+      <option value="Trebuchet MS">Trebuchet MS</option>
+      <option value="Helvetica Neue">Helvetica Neue</option>
+      <option value="Georgia">Georgia</option>
+      <option value="Cambria">Cambria</option>
+      <option value="Garamond">Garamond</option>
+      <option value="Times New Roman">Times New Roman</option>
+     </select></div>
+    <div class="fontSample" id="fontSample" aria-live="polite"><span class="fontSampleKicker">VISTA PREVIA DE TIPOGRAFÍA</span><strong>Cotización · Servicios profesionales</strong><span>Calidad, precisión y confianza en cada proyecto.</span><small>Aa Bb Cc 0123456789 · S/ 1,250.00</small></div>
+    <label class="switchLine">Aplicar también a la interfaz <input type="checkbox" data-bind="theme.applyToEditor"></label>
+    <p class="hint">Utiliza fuentes instaladas en el equipo. Si alguna no está disponible, el navegador mostrará una alternativa compatible.</p>
+   </div></details>
+   <details class="accordion"><summary>Diseño y colores</summary><div class="accordionBody">
+    <div class="colorrow"><div class="colorChoice"><div class="fieldLabel">Primario</div><input type="color" data-bind="theme.primary"></div><div class="colorChoice"><div class="fieldLabel">Secundario</div><input type="color" data-bind="theme.secondary"></div></div>
+    <div class="fieldLabel" style="margin-top:13px">Combinaciones</div>
+    <div class="presets" aria-label="Paletas predefinidas">
+     <button class="preset" title="Azul corporativo" aria-label="Azul corporativo" data-preset="#102f41,#b9d8e1"><span style="background:#102f41"></span><span style="background:#b9d8e1"></span></button>
+     <button class="preset" title="Verde técnico" aria-label="Verde técnico" data-preset="#176057,#b5e0d8"><span style="background:#176057"></span><span style="background:#b5e0d8"></span></button>
+     <button class="preset" title="Azul petróleo" aria-label="Azul petróleo" data-preset="#214b78,#d5e5ff"><span style="background:#214b78"></span><span style="background:#d5e5ff"></span></button>
+     <button class="preset" title="Grafito" aria-label="Grafito" data-preset="#2e3540,#dce1e8"><span style="background:#2e3540"></span><span style="background:#dce1e8"></span></button>
+    </div>
+   </div></details>
+   <details class="accordion"><summary>Archivos y herramientas</summary><div class="accordionBody">
+    <div class="stackButtons">
+     <button class="btn" id="downloadJSON" type="button">Exportar respaldo JSON</button>
+     <button class="btn" type="button" id="importJSON">Importar respaldo JSON</button>
+     <button class="btn" type="button" id="loadExample">Cargar ejemplo</button>
+     <button class="btn danger" id="resetStorage" type="button">Restablecer editor</button>
+    </div>
+    <input type="file" id="jsonFile" accept=".json,application/json" hidden>
+    <p class="hint">Los datos se guardan en este navegador. Puedes usar JSON para trasladarlos a otro equipo.</p>
+   </div></details>
+  </section>
+ </aside>
+ <main class="stage">
+  <div class="stageBar"><div class="meta"><strong id="stageName">Cotización</strong><span class="stageDot"></span>Vista previa A4 · estilo corporativo</div><span class="previewLabel">Vista previa en tiempo real</span></div>
+  <div class="paperWrap"><article class="paper" id="paper" aria-label="Vista previa del documento">
+   <header class="paperHead"><div class="issuerBlock"><div id="paperLogo"></div><div class="issuerInfo"><h2 id="viewCompany"></h2><p class="tagline" id="viewTagline"></p><div class="contact" id="viewContact"></div></div></div><div class="rucInfo" id="viewIssuerExtra"></div></header>
+   <section class="docTitleRow"><div><h1 class="docType" id="viewTitle"></h1><div class="docNo" id="viewDocNo"></div></div><div class="issuedBox" id="viewDates"></div></section>
+   <div class="docIntro" id="viewIntro"></div>
+   <section class="paperSection"><div class="sectionHeading">Cliente</div><div class="clientRows" id="viewClient"></div></section>
+   <section class="paperSection" id="itemsSection"><div class="sectionHeading">Detalle de productos y servicios</div><table class="itemsTable"><thead><tr><th>Cant.</th><th>Descripción</th><th>P. unitario</th><th>Importe</th></tr></thead><tbody id="viewItems"></tbody></table><div class="totalsBlock"><div class="totalsBox" id="viewTotals"></div></div><div class="splitInfo" id="viewAdvance"></div></section>
+   <section class="paperSection" id="optionalSection" hidden><div class="sectionHeading">Servicios opcionales · no incluidos</div><table class="optionalTable"><tbody id="viewOptional"></tbody></table></section>
+   <section class="paperSection" id="recommendationsSection" hidden><div class="sectionHeading">Recomendaciones</div><ul class="simpleList" id="viewRecommendations"></ul></section>
+   <section class="paperSection" id="importantSection" hidden><div class="sectionHeading">Observaciones importantes</div><p class="longText" id="viewImportant"></p></section>
+   <section class="paperSection" id="paymentTermsSection"><div class="sectionHeading">Forma de pago</div><p class="longText" id="viewPaymentTerms"></p></section>
+   <section class="paperSection" id="paymentMethodsSection"><div class="sectionHeading">Medios de pago</div><div class="paymentGrid" id="viewPayments"></div></section>
+   <footer class="paperFoot" id="viewFooter"></footer>
+  </article></div>
+  <footer class="footVersion">Generador comercial v1.3.0 · actualizado 2026-11-01 · funciona sin conexión</footer>
+ </main>
+</div>
+<div id="toast" class="toast" role="status"></div>
+<script defer src="js/app.js"></script>
+</body>
+</html>
