@@ -4,18 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Generador de Cotizaciones y Notas de Venta · v1.3.0</title>
+<title>Facturador comercial · v1.4.0</title>
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 <div class="shell" id="app">
+ <aside class="appNav" aria-label="Navegación principal">
+  <div class="navBrand"><span class="navMark" aria-hidden="true">▤</span><div class="navBrandText"><strong>Facturador</strong><small>Gestión comercial</small></div></div>
+  <div class="navCategory">GESTIÓN DE DOCUMENTOS</div>
+  <nav class="sideLinks" aria-label="Secciones del editor">
+   <button type="button" class="sideLink active" data-tab="documento"><span class="navIcon" aria-hidden="true">▤</span><span>Emisión</span></button>
+   <button type="button" class="sideLink" data-tab="conceptos"><span class="navIcon" aria-hidden="true">☷</span><span>Conceptos</span></button>
+   <button type="button" class="sideLink" data-tab="opciones"><span class="navIcon" aria-hidden="true">⚙</span><span>Configuración</span></button>
+  </nav>
+  <div class="navBottom"><div class="navInfo"><strong>Documento local</strong><span>Los borradores se guardan en este navegador.</span></div><div class="navVersion">v1.4.0</div></div>
+ </aside>
  <aside class="control">
   <header class="controlHead">
-   <div class="eyebrow">GENERADOR COMERCIAL</div>
-   <h1>Cotizaciones y notas de venta</h1>
-   <p>Completa los datos, revisa el documento y guárdalo en PDF.</p>
+   <div class="eyebrow">CENTRO DE EMISIÓN</div>
+   <h1>Nuevo documento</h1>
+   <p>Completa los campos y obtén un PDF listo para compartir.</p>
    <div class="controlAction">
-    <button type="button" class="btn primary" id="printTop">Guardar PDF</button>
+    <button type="button" class="btn primary" id="printTop">Exportar PDF</button>
     <button type="button" class="btn" id="newDoc">Nuevo</button>
    </div>
   </header>
@@ -25,7 +35,7 @@
    <button type="button" class="tab" data-tab="opciones"><span class="stepNum">03</span><span>Opciones</span></button>
   </nav>
   <section class="formPanel active" data-panel="documento" aria-label="Datos del documento">
-   <div class="panelHeading"><h2>Información principal</h2><p>Lo necesario para comenzar.</p></div>
+   <div class="panelHeading"><h2>Datos de emisión</h2><p>Elige el documento y registra sus datos.</p></div>
    <div class="fieldLabel">Tipo de documento</div>
    <div class="typeToggle"><button type="button" class="typeButton active" data-type="cotizacion">Cotización</button><button type="button" class="typeButton" data-type="nota">Nota de venta</button></div>
    <div class="fields2"><div class="field"><label for="documentNo">Número</label><input id="documentNo" data-bind="documentNo" placeholder="Ej. 03.2026"></div><div class="field"><label for="issued">Fecha</label><input id="issued" type="date" data-bind="issueDate"></div></div>
@@ -43,7 +53,7 @@
    <div class="nextStep"><button class="btn primary nextButton" type="button" data-go="conceptos">Continuar a conceptos</button></div>
   </section>
   <section class="formPanel" data-panel="conceptos" aria-label="Conceptos e importes">
-   <div class="panelHeading"><h2>Productos y servicios</h2><p>Agrega lo que deseas cotizar o vender.</p></div>
+   <div class="panelHeading"><h2>Detalle de productos</h2><p>Ingresa conceptos, cantidades y precios unitarios.</p></div>
    <div id="itemsEditor"></div>
    <button class="btn addButton" type="button" id="addItem">Agregar concepto</button>
    <div class="editorTotal" aria-live="polite"><span>Importe total</span><strong id="editorTotalPrice">S/ 0.00</strong></div>
@@ -58,7 +68,7 @@
    <div class="nextStep"><button class="btn primary nextButton" type="button" data-go="opciones">Continuar a opciones</button></div>
   </section>
   <section class="formPanel" data-panel="opciones" aria-label="Opciones adicionales">
-   <div class="panelHeading"><h2>Opciones del documento</h2><p>Personaliza solo lo que necesites.</p></div>
+   <div class="panelHeading"><h2>Configuración</h2><p>Condiciones, medios de pago y diseño.</p></div>
    <details class="accordion"><summary>Condiciones comerciales</summary><div class="accordionBody">
     <div class="field"><label>Forma de pago</label><textarea data-bind="paymentTerms" rows="3"></textarea></div>
     <div class="fields2"><div class="field"><label>Adelanto (%)</label><input type="number" min="0" max="100" step="1" data-bind="advancePercent"></div><div class="field" style="padding-top:17px"><label class="switchLine" style="margin:0">Mostrar adelanto <input type="checkbox" data-bind="showAdvance"></label></div></div>
@@ -135,7 +145,9 @@
   </section>
  </aside>
  <main class="stage">
-  <div class="stageBar"><div class="meta"><strong id="stageName">Cotización</strong><span class="stageDot"></span>Vista previa A4 · estilo corporativo</div><span class="previewLabel">Vista previa en tiempo real</span></div>
+  <div class="stageBar"><div class="stageHeading"><div class="crumbs">Documentos <span>/</span> Crear documento</div><div class="stageHeadingRow"><h2 id="stageName">Cotización</h2><span class="statusPill"><span class="statusDot"></span> En edición</span></div><p>Administra los datos y verifica la presentación antes de exportar.</p></div><button id="printStage" class="btn primary stageExport" type="button">Exportar PDF</button></div>
+  <div class="metricsStrip" aria-label="Resumen de la operación"><div class="metric"><span>TIPO DE DOCUMENTO</span><strong id="summaryType">Cotización</strong></div><div class="metric"><span>CLIENTE</span><strong id="summaryClient">Sin asignar</strong></div><div class="metric amount"><span>IMPORTE TOTAL</span><strong id="summaryAmount">S/ 0.00</strong></div></div>
+  <div class="paperToolbar"><span>VISTA PREVIA DEL DOCUMENTO</span><span class="paperFormat">A4 · Actualización automática</span></div>
   <div class="paperWrap"><article class="paper" id="paper" aria-label="Vista previa del documento">
    <header class="paperHead"><div class="issuerBlock"><div id="paperLogo"></div><div class="issuerInfo"><h2 id="viewCompany"></h2><p class="tagline" id="viewTagline"></p><div class="contact" id="viewContact"></div></div></div><div class="rucInfo" id="viewIssuerExtra"></div></header>
    <section class="docTitleRow"><div><h1 class="docType" id="viewTitle"></h1><div class="docNo" id="viewDocNo"></div></div><div class="issuedBox" id="viewDates"></div></section>
@@ -149,7 +161,7 @@
    <section class="paperSection" id="paymentMethodsSection"><div class="sectionHeading">Medios de pago</div><div class="paymentGrid" id="viewPayments"></div></section>
    <footer class="paperFoot" id="viewFooter"></footer>
   </article></div>
-  <footer class="footVersion">Generador comercial v1.3.0 · actualizado 2026-11-01 · funciona sin conexión</footer>
+  <footer class="footVersion">Facturador comercial v1.4.0 · actualizado 2026-11-01 · sitio estático</footer>
  </main>
 </div>
 <div id="toast" class="toast" role="status"></div>
