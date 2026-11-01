@@ -1,4 +1,4 @@
-# Generador Comercial — v1.3.0
+# Generador Comercial — v1.4.0
 
 Generador de **cotizaciones** y **notas de venta** en un sitio web estático. Basado en HTML, CSS y JavaScript, sin frameworks ni servidor.
 
@@ -43,3 +43,11 @@ js/app.js                  Estado, cálculos, edición e importación/exportaci�
 ```
 
 Versión 1.3.0 · 2026-11-01
+## Interfaz tipo facturador (v1.4.0)
+
+- Navegación lateral por Emisión, Conceptos y Configuración.
+- Panel de resumen con tipo de documento, cliente e importe total en tiempo real.
+- Vista previa A4 y acción de exportación a PDF desde el área de trabajo.
+- Diseño adaptable a escritorio y dispositivos móviles.
+
+**Importante:** Esta aplicación elabora cotizaciones y notas de venta. No genera facturas ni boletas electrónicas autorizadas por SUNAT, ni realiza envíos tributarios.
